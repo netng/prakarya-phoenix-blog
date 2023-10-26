@@ -12,6 +12,20 @@ defmodule BlogWeb.PostControllerTest do
       conn = get(conn, ~p"/posts")
       assert html_response(conn, 200) =~ "Listing Posts"
     end
+
+    test "search for posts - non matching", %{conn: conn} do
+      post = post_fixture(title: "some title")
+      conn = get(conn, ~p"/posts", title: "Non-Matching")
+      refute html_response(conn, 200) =~ post.title
+    end
+
+    test "search for posts - exact match", %{conn: conn} do
+      post = post_fixture(title: "Title")
+      conn = get(conn, ~p"/posts", title: "Title")
+      assert html_response(conn, 200) =~ post.title
+    end
+
+    
   end
 
   describe "new post" do

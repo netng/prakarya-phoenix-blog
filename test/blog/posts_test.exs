@@ -59,5 +59,37 @@ defmodule Blog.PostsTest do
       post = post_fixture()
       assert %Ecto.Changeset{} = Posts.change_post(post)
     end
+
+    test "list_posts/1 filters posts by partial and case-insensitive title" do
+      post = post_fixture(title: "Title")
+
+      # non-matching
+      assert Posts.list_posts("Non-Matching") == []
+
+      # exact match
+      assert Posts.list_posts("Title") == [post]
+
+      # partial match end
+      assert Posts.list_posts("tle") == [post]
+
+      # partial match front
+      assert Posts.list_posts("tit") == [post]
+
+      # partial match middle
+      assert Posts.list_posts("itl") == [post]
+
+      # case insensitive lower
+      assert Posts.list_posts("title") == [post]
+
+      # case insensitive upper
+      assert Posts.list_posts("TITLE") == [post]
+
+      # case insensitive and partial match
+      assert Posts.list_posts("TIT") == [post]
+
+      # empty
+      assert Posts.list_posts("") == [post]
+
+    end
   end
 end

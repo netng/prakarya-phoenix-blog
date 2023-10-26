@@ -17,8 +17,9 @@ defmodule Blog.Posts do
       [%Post{}, ...]
 
   """
-  def list_posts do
-    Repo.all(Post)
+  def list_posts(title \\ "") do
+    search_pattern = "%#{title}%"
+    Repo.all(from p in Post, where: ilike(p.title, ^search_pattern))
   end
 
   @doc """
