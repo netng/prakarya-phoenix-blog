@@ -5,7 +5,6 @@ defmodule BlogWeb.PostController do
   alias Blog.Posts.Post
 
   def index(conn, params) do
-    IO.inspect(params)
     case params do
       %{"title" => title} ->
         posts = Posts.list_posts(title)

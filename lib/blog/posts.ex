@@ -19,7 +19,12 @@ defmodule Blog.Posts do
   """
   def list_posts(title \\ "") do
     search_pattern = "%#{title}%"
-    Repo.all(from p in Post, where: ilike(p.title, ^search_pattern))
+
+    Repo.all(from p in Post,
+      where: ilike(p.title, ^search_pattern),
+      where: p.visible,
+      where: p.published_on <= ^Date.utc_today(),
+      order_by: [desc: p.published_on])
   end
 
   @doc """

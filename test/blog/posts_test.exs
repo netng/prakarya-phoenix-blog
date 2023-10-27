@@ -2,17 +2,71 @@ defmodule Blog.PostsTest do
   use Blog.DataCase
 
   alias Blog.Posts
+  import Ecto.Query, warn: false
 
   describe "posts" do
     alias Blog.Posts.Post
 
     import Blog.PostsFixtures
 
-    @invalid_attrs %{title: nil, subtitle: nil, content: nil}
+    @invalid_attrs %{title: nil, published_on: nil, visible: nil, content: nil}
 
-    test "list_posts/0 returns all posts" do
-      post = post_fixture()
-      assert Posts.list_posts() == [post]
+    test "list_posts/0 returns all posts are displayed from newest -> oldest" do
+      post_attrs = [
+        %{
+          title: "some title 1",
+          published_on: ~D"2023-10-26",
+          visible: true,
+          content: "some content 1",
+          inserted_at: NaiveDateTime.local_now(),
+          updated_at: NaiveDateTime.local_now()
+        },
+        %{
+          title: "some title 2",
+          published_on: ~D"2023-10-27",
+          visible: true,
+          content: "some content 2",
+          inserted_at: NaiveDateTime.local_now(),
+          updated_at: NaiveDateTime.local_now()
+        }
+      ]
+
+
+      Repo.insert_all(Post, post_attrs)
+      posts = Posts.list_posts()
+
+      assert posts
+      |> Enum.at(0)
+      |> Map.get(:published_on) ==  ~D"2023-10-27"
+
+    end
+
+    test "list_posts/0 ensure posts with a published date in the future are filtered from the list of posts" do
+      post_attrs = %{
+        title: "end of life",
+        published_on: ~D"9999-10-27",
+        visible: :true,
+        content: "end of life content"
+      }
+
+      {:ok, _} = Posts.create_post(post_attrs)
+      posts = Posts.list_posts()
+
+      assert posts == []
+    end
+
+    test "list_posts/0 ensure posts with visible: :false are filtered from the list of posts" do
+      post_attrs = %{
+        title: "some title 2",
+        published_on: ~D"2023-10-27",
+        visible: :false,
+        content: "some content 2"
+      }
+
+      Posts.create_post(post_attrs)
+      posts = Posts.list_posts()
+
+      assert posts == []
     end
 
     test "get_post!/1 returns the post with given id" do
@@ -21,11 +75,17 @@ defmodule Blog.PostsTest do
     end
 
     test "create_post/1 with valid data creates a post" do
-      valid_attrs = %{title: "some title", subtitle: "some subtitle", content: "some content"}
+      valid_attrs = %{
+        title: "some title",
+        published_on: ~D"2023-10-27",
+        visible: :true,
+        content: "some content"
+      }
 
       assert {:ok, %Post{} = post} = Posts.create_post(valid_attrs)
       assert post.title == "some title"
-      assert post.subtitle == "some subtitle"
+      assert post.published_on == ~D"2023-10-27"
+      assert post.visible == true
       assert post.content == "some content"
     end
 
@@ -35,11 +95,12 @@ defmodule Blog.PostsTest do
 
     test "update_post/2 with valid data updates the post" do
       post = post_fixture()
-      update_attrs = %{title: "some updated title", subtitle: "some updated subtitle", content: "some updated content"}
+      update_attrs = %{title: "some updated title", published_on: ~D"2023-10-27", visible: true, content: "some updated content"}
 
       assert {:ok, %Post{} = post} = Posts.update_post(post, update_attrs)
       assert post.title == "some updated title"
-      assert post.subtitle == "some updated subtitle"
+      assert post.published_on == Date.utc_today()
+      assert post.visible == true
       assert post.content == "some updated content"
     end
 
