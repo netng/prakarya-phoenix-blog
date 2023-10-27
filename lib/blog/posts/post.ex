@@ -5,6 +5,8 @@ defmodule Blog.Posts.Post do
   schema "posts" do
     field :title, :string
     field :content, :string
+    field :published_on, :date
+    field :visible, :boolean, default: :true
 
     timestamps()
   end
@@ -14,5 +16,6 @@ defmodule Blog.Posts.Post do
     post
     |> cast(attrs, [:title, :content])
     |> validate_required([:title, :content])
+    |> unique_constraint(:title)
   end
 end
