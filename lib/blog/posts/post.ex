@@ -4,7 +4,6 @@ defmodule Blog.Posts.Post do
 
   schema "posts" do
     field :title, :string
-    field :subtitle, :string
     field :content, :string
 
     timestamps()
@@ -13,7 +12,7 @@ defmodule Blog.Posts.Post do
   @doc false
   def changeset(post, attrs) do
     post
-    |> cast(attrs, [:title, :subtitle, :content])
-    |> validate_required([:title, :subtitle, :content])
+    |> cast(attrs, [:title, :content])
+    |> validate_required([:title, :content])
   end
 end
