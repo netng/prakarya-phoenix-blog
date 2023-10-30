@@ -1,6 +1,8 @@
 defmodule BlogWeb.PostController do
   use BlogWeb, :controller
 
+  alias Blog.Comments.Comment
+  alias Blog.Comments
   alias Blog.Posts
   alias Blog.Posts.Post
 
@@ -33,8 +35,9 @@ defmodule BlogWeb.PostController do
   end
 
   def show(conn, %{"id" => id}) do
+    comment_changeset = Comments.change_comment(%Comment{})
     post = Posts.get_post!(id)
-    render(conn, :show, post: post)
+    render(conn, :show, post: post, comment_changeset: comment_changeset)
   end
 
   def edit(conn, %{"id" => id}) do
@@ -65,4 +68,44 @@ defmodule BlogWeb.PostController do
     |> put_flash(:info, "Post deleted successfully.")
     |> redirect(to: ~p"/posts")
   end
+
+  def create_comment(conn, %{"post_id" => post_id, "comment" => comment_params}) do
+    post = Posts.get_post!(post_id)
+    case Comments.create_comment(Map.put(comment_params, "post_id", post_id)) do
+      {:ok, _comment} ->
+        conn
+        |> put_flash(:info, "Comment created successfully.")
+        |> redirect(to: ~p"/posts/#{post_id}")
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+       render(conn, :show, post: post, comment_changeset: changeset)
+    end
+  end
+
+  def delete_comment(conn, %{"post_id" => post_id, "comment_id" => comment_id}) do
+    comment = Comments.get_comment!(comment_id)
+    {:ok, _comment} = Comments.delete_comment(comment)
+
+    conn
+    |> put_flash(:info, "Comment deleted successfully")
+    |> redirect(to: ~p"/posts/#{post_id}")
+  end
+
+  def edit_comment(conn, %{"post_id" => post_id, "comment_id" => comment_id}) do
+    comment = Comments.get_comment!(comment_id)
+    changeset = Comments.change_comment(comment)
+    render(conn, :edit_comment, changeset: changeset, comment: comment, post_id: post_id)
+  end
+
+  def update_comment(conn, %{"comment_id" => comment_id, "comment" => comment_params}) do
+    comment = Comments.get_comment!(comment_id)
+
+    case Comments.update_comment(comment, comment_params) do
+      {:ok, comment} ->
+        conn
+        |> put_flash(:info, "Comment updated successfully")
+        |> redirect(to: ~p"/posts/#{comment.post}")
+    end
+  end
+
 end

@@ -69,6 +69,7 @@ defmodule Blog.Comments do
   """
   def update_comment(%Comment{} = comment, attrs) do
     comment
+    |> Repo.preload(:post)
     |> Comment.changeset(attrs)
     |> Repo.update()
   end

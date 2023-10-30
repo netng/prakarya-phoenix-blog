@@ -25,7 +25,7 @@ defmodule BlogWeb.PostControllerTest do
       assert html_response(conn, 200) =~ post.title
     end
 
-    
+
   end
 
   describe "new post" do
@@ -90,6 +90,11 @@ defmodule BlogWeb.PostControllerTest do
       end
     end
   end
+
+  # TODO
+  # create test to ensure comment created succesffully on each post
+
+  # create test to ensure comment updated successfully on each post
 
   defp create_post(_) do
     post = post_fixture()

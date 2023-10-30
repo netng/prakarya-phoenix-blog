@@ -8,6 +8,7 @@ defmodule Blog.PostsTest do
     alias Blog.Posts.Post
 
     import Blog.PostsFixtures
+    import Blog.CommentsFixtures
 
     @invalid_attrs %{title: nil, published_on: nil, visible: nil, content: nil}
 
@@ -72,6 +73,12 @@ defmodule Blog.PostsTest do
     test "get_post!/1 returns the post with given id" do
       post = post_fixture()
       assert Posts.get_post!(post.id) == post
+    end
+
+    test "get_post!/1 returns the post with given id and associated comments" do
+      post = post_fixture()
+      comment = comment_fixture(post_id: post.id)
+      assert Posts.get_post!(post.id).comments == [comment]
     end
 
     test "create_post/1 with valid data creates a post" do
