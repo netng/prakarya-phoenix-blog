@@ -1,0 +1,36 @@
+<.header>
+  Post <%= @post.id %>
+  <:subtitle>This is a post record from your database.</:subtitle>
+  <:actions>
+    <.link href={~p"/posts/#{@post}/edit"}>
+      <.button>Edit post</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Title"><%= @post.title %></:item>
+  <:item title="Published date"><%= @post.published_on %></:item>
+  <:item title="Visible"><%= @post.visible %></:item>
+  <:item title="Content"><%= @post.content %></:item>
+</.list>
+
+<h3 class="mt-2 mb-2">Comments</h3>
+<.post_comment_form changeset={@comment_changeset} action={~p"/posts/#{@post.id}/comments"} /> 
+<%= for comment <- @post.comments do %>
+  <p>
+    <%= comment.content %>
+    <.link 
+      href={~p"/posts/#{@post.id}/comments/#{comment.id}/edit"}>
+      Edit
+    </.link>
+    <.link 
+      href={~p"/posts/#{@post.id}/comments/#{comment.id}"}
+      method="delete"
+      data-confirm="Are you sure?">
+      Delete
+    </.link>
+  </p>
+<% end %>
+
+<.back navigate={~p"/posts"}>Back to posts</.back>

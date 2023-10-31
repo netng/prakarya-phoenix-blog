@@ -1,0 +1,36 @@
+<.header>
+  Listing Posts
+  <:actions>
+    <.link href={~p"/posts/new"}>
+      <.button>New Post</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.simple_form :let={f} for={%{}} method={"get"} action={~p"/posts"}>
+  <.input field={f[:title]} type="text" label="Search posts" />
+  <:actions>
+    <.button>Search</.button>
+  </:actions>
+</.simple_form>
+
+<button class="bg-blue-400 rounded hover:bg-blue-500 p-2 font-semibold text-white" phx-click={JS.toggle(to: "#toggleable")}>Hide/Show</button>
+<div id="toggleable">Hide and Show</div>
+
+<.table id="posts" rows={@posts} row_click={&JS.navigate(~p"/posts/#{&1}")}>
+  <:col :let={post} label="Title"><%= post.title %></:col>
+  <:col :let={post} label="Visible"><%= post.visible %></:col>
+  <:col :let={post} label="Published date"><%= post.published_on %></:col>
+  <:col :let={post} label="Content"><%= post.content %></:col>
+  <:action :let={post}>
+    <div class="sr-only">
+      <.link navigate={~p"/posts/#{post}"}>Show</.link>
+    </div>
+    <.link navigate={~p"/posts/#{post}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={post}>
+    <.link href={~p"/posts/#{post}"} method="delete" data-confirm="Are you sure?">
+      Delete
+    </.link>
+  </:action>
+</.table>
