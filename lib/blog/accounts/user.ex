@@ -1,12 +1,18 @@
 defmodule Blog.Accounts.User do
+  alias Blog.Comments.Comment
+  alias Blog.Posts.Post
   use Ecto.Schema
   import Ecto.Changeset
 
   schema "users" do
     field :email, :string
+    field :username, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
+
+    has_many :posts, Post
+    has_many :comments, Comment
 
     timestamps()
   end
@@ -36,9 +42,17 @@ defmodule Blog.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password])
+    |> cast(attrs, [:email, :password, :username])
     |> validate_email(opts)
     |> validate_password(opts)
+    |> validate_username()
+
+  end
+
+  def validate_username(changeset) do
+    changeset
+    |> validate_length(:username, min: 4, max: 20)
+    |> validate_required([:username])
   end
 
   defp validate_email(changeset, opts) do
@@ -52,7 +66,7 @@ defmodule Blog.Accounts.User do
   defp validate_password(changeset, opts) do
     changeset
     |> validate_required([:password])
-    |> validate_length(:password, min: 12, max: 72)
+    |> validate_length(:password, min: 5, max: 72)
     # Examples of additional password validation:
     # |> validate_format(:password, ~r/[a-z]/, message: "at least one lower case character")
     # |> validate_format(:password, ~r/[A-Z]/, message: "at least one upper case character")
@@ -80,7 +94,7 @@ defmodule Blog.Accounts.User do
   defp maybe_validate_unique_email(changeset, opts) do
     if Keyword.get(opts, :validate_email, true) do
       changeset
-      |> unsafe_validate_unique(:email, Blog.Repo)
+      |> unsafe_validate_unique(:email, Blog.Repo, message: "Email has already been taken")
       |> unique_constraint(:email)
     else
       changeset

@@ -13,13 +13,14 @@
   <:item title="Published date"><%= @post.published_on %></:item>
   <:item title="Visible"><%= @post.visible %></:item>
   <:item title="Content"><%= @post.content %></:item>
+  <:item title="Created by"><%= @post.user.username %></:item>
 </.list>
 
 <h3 class="mt-2 mb-2">Comments</h3>
 <.post_comment_form changeset={@comment_changeset} action={~p"/posts/#{@post.id}/comments"} /> 
-<%= for comment <- @post.comments do %>
+<%= for comment <- @comments do %>
   <p>
-    <%= comment.content %>
+    <%= comment.content %> by <%= comment.user.username %>
     <.link 
       href={~p"/posts/#{@post.id}/comments/#{comment.id}/edit"}>
       Edit
