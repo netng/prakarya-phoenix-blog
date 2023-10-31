@@ -37,7 +37,9 @@ defmodule BlogWeb.PostController do
   def show(conn, %{"id" => id}) do
     comment_changeset = Comments.change_comment(%Comment{})
     post = Posts.get_post!(id)
-    render(conn, :show, post: post, comment_changeset: comment_changeset)
+    comments = Comments.list_comments_by_post(post)
+    IO.inspect(comments)
+    render(conn, :show, post: post, comment_changeset: comment_changeset, comments: comments)
   end
 
   def edit(conn, %{"id" => id}) do
@@ -62,16 +64,24 @@ defmodule BlogWeb.PostController do
 
   def delete(conn, %{"id" => id}) do
     post = Posts.get_post!(id)
-    {:ok, _post} = Posts.delete_post(post)
+    if post.user_id == conn.assigns[:current_user].id do
+      {:ok, _post} = Posts.delete_post(post)
 
-    conn
-    |> put_flash(:info, "Post deleted successfully.")
-    |> redirect(to: ~p"/posts")
+      conn
+      |> put_flash(:info, "Post deleted successfully.")
+      |> redirect(to: ~p"/posts")
+    else
+      conn
+      |> put_flash(:error, "You can only delete your own posts.")
+      |> redirect(to: ~p"/posts")
+      |> halt()
+    end
   end
 
   def create_comment(conn, %{"post_id" => post_id, "comment" => comment_params}) do
     post = Posts.get_post!(post_id)
-    case Comments.create_comment(Map.put(comment_params, "post_id", post_id)) do
+    current_user = conn.assigns[:current_user]
+    case Comments.create_comment(Map.put(comment_params, "post_id", post_id) |> Map.put("user_id", current_user.id)) do
       {:ok, _comment} ->
         conn
         |> put_flash(:info, "Comment created successfully.")
@@ -84,11 +94,18 @@ defmodule BlogWeb.PostController do
 
   def delete_comment(conn, %{"post_id" => post_id, "comment_id" => comment_id}) do
     comment = Comments.get_comment!(comment_id)
-    {:ok, _comment} = Comments.delete_comment(comment)
+    if comment.user_id == conn.assigns[:current_user].id do
+      {:ok, _comment} = Comments.delete_comment(comment)
 
-    conn
-    |> put_flash(:info, "Comment deleted successfully")
-    |> redirect(to: ~p"/posts/#{post_id}")
+      conn
+      |> put_flash(:info, "Comment deleted successfully")
+      |> redirect(to: ~p"/posts/#{post_id}")
+    else
+      conn
+      |> put_flash(:error, "You can only delete your own comments.")
+      |> redirect(to: ~p"/posts/#{post_id}")
+      |> halt()
+    end
   end
 
   def edit_comment(conn, %{"post_id" => post_id, "comment_id" => comment_id}) do

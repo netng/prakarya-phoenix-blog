@@ -1,4 +1,5 @@
 defmodule Blog.Posts.Post do
+  alias Blog.Accounts.User
   alias Blog.Comments.Comment
   use Ecto.Schema
   import Ecto.Changeset
@@ -11,14 +12,17 @@ defmodule Blog.Posts.Post do
 
     has_many :comments, Comment
 
+    belongs_to :user, User
+
     timestamps()
   end
 
   @doc false
   def changeset(post, attrs) do
     post
-    |> cast(attrs, [:title, :published_on, :visible, :content])
-    |> validate_required([:title, :content])
+    |> cast(attrs, [:title, :published_on, :visible, :content, :user_id])
+    |> validate_required([:title, :content, :user_id])
     |> unique_constraint(:title)
+    |> foreign_key_constraint(:user_id)
   end
 end

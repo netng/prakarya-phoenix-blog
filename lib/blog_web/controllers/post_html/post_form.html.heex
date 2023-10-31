@@ -25,6 +25,11 @@
     type="date"
     label="Published on" />
   
+  <.input
+    field={f[:user_id]}
+    type="hidden"
+    value={@current_user.id} />
+  
   <:actions>
     <.button>Save Post</.button>
   </:actions>

@@ -4,6 +4,7 @@ defmodule Blog.Comments do
   """
 
   import Ecto.Query, warn: false
+  alias Blog.Posts.Post
   alias Blog.Repo
 
   alias Blog.Comments.Comment
@@ -19,6 +20,13 @@ defmodule Blog.Comments do
   """
   def list_comments do
     Repo.all(Comment)
+  end
+
+  def list_comments_by_post(%Post{} = post) do
+    Repo.all(from c in Comment,
+      where: c.post_id == ^post.id,
+      preload: [:user]
+    )
   end
 
   @doc """

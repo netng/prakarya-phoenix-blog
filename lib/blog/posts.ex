@@ -43,6 +43,7 @@ defmodule Blog.Posts do
   """
   def get_post!(id) do
     Repo.get!(Post, id)
+    |> Repo.preload(:user)
     |> Repo.preload(:comments)
 
   end
