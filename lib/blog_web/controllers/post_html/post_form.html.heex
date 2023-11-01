@@ -26,6 +26,13 @@
     label="Published on" />
   
   <.input
+    field={f[:tag_ids]}
+    type="select"
+    label="Tags"
+    multiple={true} 
+    options={@tag_options} />
+  
+  <.input
     field={f[:user_id]}
     type="hidden"
     value={@current_user.id} />
