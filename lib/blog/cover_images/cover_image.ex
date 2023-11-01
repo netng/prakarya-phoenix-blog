@@ -1,10 +1,12 @@
 defmodule Blog.CoverImages.CoverImage do
+  alias Blog.Posts.Post
   use Ecto.Schema
   import Ecto.Changeset
 
   schema "cover_images" do
     field :url, :string
-    field :post_id, :id
+
+    belongs_to :post, Post
 
     timestamps()
   end
@@ -14,5 +16,6 @@ defmodule Blog.CoverImages.CoverImage do
     cover_image
     |> cast(attrs, [:url])
     |> validate_required([:url])
+    |> foreign_key_constraint(:post_id)
   end
 end

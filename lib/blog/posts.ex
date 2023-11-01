@@ -46,6 +46,7 @@ defmodule Blog.Posts do
     |> Repo.preload(:user)
     |> Repo.preload(:comments)
     |> Repo.preload(:tags)
+    |> Repo.preload(:cover_image)
 
   end
 

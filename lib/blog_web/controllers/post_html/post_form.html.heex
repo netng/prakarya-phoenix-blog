@@ -37,6 +37,17 @@
     type="hidden"
     value={@current_user.id} />
   
+  <.inputs_for
+    :let={cover_image}
+    field={f[:cover_image]}>
+
+    <.input 
+      type="text"
+      field={cover_image[:url]}
+      label="Cover Image URL" />
+      
+  </.inputs_for>
+
   <:actions>
     <.button>Save Post</.button>
   </:actions>

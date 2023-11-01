@@ -160,4 +160,12 @@ defmodule Blog.PostsTest do
 
     end
   end
+
+  test "create_post/1 with cover image" do
+    valid_attrs = %{
+      content: "content with cover",
+      title: "cover image",
+      cover_image:
+    }
+  end
 end
